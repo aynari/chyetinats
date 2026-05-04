@@ -1,5 +1,8 @@
 @php
     $showWishlist = (bool) core()->getConfigData('customer.settings.wishlist.wishlist_option');
+
+    $shopCategories = app(\Webkul\Category\Repositories\CategoryRepository::class)
+        ->getVisibleCategoryTree(core()->getCurrentChannel()->root_category_id);
 @endphp
 
 <v-mobile-nav></v-mobile-nav>
@@ -185,12 +188,32 @@
                 </div>
 
                 <div class="flex flex-col px-6 py-4">
-                    <a
-                        href="{{ url('/shop') }}"
-                        class="py-3 text-base font-medium uppercase tracking-wide text-black"
-                    >
-                        SHOP
-                    </a>
+                    @if ($shopCategories->isNotEmpty())
+                        <details class="group border-b border-zinc-100 last:border-b-0">
+                            <summary class="flex cursor-pointer list-none items-center justify-between py-3 text-base font-medium uppercase tracking-wide text-black [&::-webkit-details-marker]:hidden">
+                                <span>SHOP</span>
+                                <span class="icon-arrow-down text-2xl transition-transform group-open:rotate-180"></span>
+                            </summary>
+
+                            <div class="flex flex-col pb-2 ltr:pl-4 rtl:pr-4">
+                                @foreach ($shopCategories as $category)
+                                    <a
+                                        href="{{ url($category->slug) }}"
+                                        class="py-2 text-sm uppercase tracking-wide text-zinc-700"
+                                    >
+                                        {{ $category->name }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </details>
+                    @else
+                        <a
+                            href="{{ url('/shop') }}"
+                            class="py-3 text-base font-medium uppercase tracking-wide text-black"
+                        >
+                            SHOP
+                        </a>
+                    @endif
 
                     <a
                         href="{{ url('/lookbook') }}"

@@ -1,5 +1,10 @@
 {!! view_render_event('bagisto.shop.components.layouts.header.desktop.bottom.before') !!}
 
+@php
+    $shopCategories = app(\Webkul\Category\Repositories\CategoryRepository::class)
+        ->getVisibleCategoryTree(core()->getCurrentChannel()->root_category_id);
+@endphp
+
 <v-desktop-nav></v-desktop-nav>
 
 @pushOnce('scripts')
@@ -13,12 +18,39 @@
                 <div class="flex items-center gap-x-8 max-[1180px]:gap-x-5">
                     {!! view_render_event('bagisto.shop.components.layouts.header.desktop.bottom.nav_links.before') !!}
 
-                    <a
-                        href="{{ url('/shop') }}"
-                        class="text-sm font-medium uppercase tracking-wide text-black hover:opacity-60"
-                    >
-                        SHOP
-                    </a>
+                    @if ($shopCategories->isNotEmpty())
+                        <x-shop::dropdown position="bottom-left">
+                            <x-slot:toggle>
+                                <span
+                                    class="cursor-pointer text-sm font-medium uppercase tracking-wide text-black hover:opacity-60"
+                                    role="button"
+                                    tabindex="0"
+                                >
+                                    SHOP
+                                </span>
+                            </x-slot>
+
+                            <x-slot:menu class="!py-2">
+                                @foreach ($shopCategories as $category)
+                                    <li>
+                                        <a
+                                            href="{{ url($category->slug) }}"
+                                            class="block whitespace-nowrap px-5 py-2 text-sm uppercase tracking-wide text-black hover:bg-gray-100"
+                                        >
+                                            {{ $category->name }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </x-slot>
+                        </x-shop::dropdown>
+                    @else
+                        <a
+                            href="{{ url('/shop') }}"
+                            class="text-sm font-medium uppercase tracking-wide text-black hover:opacity-60"
+                        >
+                            SHOP
+                        </a>
+                    @endif
 
                     <a
                         href="{{ url('/lookbook') }}"
